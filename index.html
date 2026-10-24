@@ -264,22 +264,18 @@
         playTone(150, 'sawtooth', 0.2, 0.2);
         playTone(80, 'triangle', 0.3, 0.3);
     }
+// 1. Creamos el objeto de audio apuntando a música de batalla real de Pokémon
+const pokemonMusic = new Audio("https://soundboard.com"); 
+pokemonMusic.loop = true;   // Hace que la música se repita sin parar
+pokemonMusic.volume = 0.15; // Un volumen moderado para que no sature
 
-    function startRetroMusic() {
-        const melody = [330, 392, 440, 523, 587, 659, 784];
-        let step = 0;
-        musicInterval = setInterval(() => {
-            if (!isGameActive) {
-                clearInterval(musicInterval);
-                return;
-            }
-            playTone(melody[step % melody.length], 'square', 0.18, 0.02);
-            if (step % 2 === 0) {
-                playTone(melody[step % melody.length] / 2, 'triangle', 0.3, 0.04);
-            }
-            step++;
-        }, 200);
-    }
+// 2. Esta es tu nueva función startRetroMusic corregida
+function startRetroMusic() {
+    pokemonMusic.play().catch(error => {
+        console.log("El navegador bloqueó el autoplay, se activará al hacer clic en un ataque.");
+    });
+}
+
 
     function updateUI() {
         const playerHpPct = (player.hp / player.maxHp) * 100;
@@ -327,15 +323,17 @@
         animateHit('enemy-sprite');
         updateUI();
 
-        if (enemy.hp <= 0) {
+                if (enemy.hp <= 0) {
             setTimeout(() => {
                 document.getElementById('dialogue-box').innerText = "¡RESI se fue a llorar! ¡ANTON gana la batalla!";
                 document.getElementById('enemy-sprite').style.display = 'none';
                 isGameActive = false;
-                playTone(440, 'square', 0.5, 0.1);
+                pokemonMusic.pause(); // 👈 ¡Justo aquí también!
+                playTone(440, 'square', 0.5, 0.1); // Sonido retro de victoria
             }, 1500);
             return;
         }
+
 
         setTimeout(enemyTurn, 1800);
     }
@@ -362,6 +360,7 @@
                 document.getElementById('dialogue-box').innerText = "¡ANTON se quedó dormido! RESI gana.";
                 document.getElementById('player-sprite').style.display = 'none';
                 isGameActive = false;
+                pokemonMusic.pause();
             }, 1500);
             return;
         }
