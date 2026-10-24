@@ -320,6 +320,13 @@ pokemonMusic.loop = true;   // Hace que la música se repita sin parar
 pokemonMusic.volume = 0.15; // Un volumen moderado para que no sature
 
 
+const victoryMusic = new Audio("https://vgmtreasurechest.com/soundtracks/pokemon-red-green-blue-yellow/bgybkvzj/53.%20Ending%20Theme.mp3");
+victoryMusic.volume = 0.2; // Volumen de la victoria
+
+const defeatMusic = new Audio("https://vgmtreasurechest.com/soundtracks/pokemon-red-green-blue-yellow/zlenehzy/57.%20A%20Trainer%20Appears%20%28Rocket%20Duo%20Version%29.mp3"); 
+defeatMusic.volume = 0.2; // Volumen de la derrota
+
+
 function startRetroMusic() {
     pokemonMusic.play().catch(error => {
         console.log("El navegador bloqueó el autoplay, se activará al hacer clic en un ataque.");
@@ -373,19 +380,21 @@ function startRetroMusic() {
         animateHit('enemy-sprite');
         updateUI();
 
-                if (enemy.hp <= 0) {
+                        if (enemy.hp <= 0) {
             setTimeout(() => {
                 document.getElementById('dialogue-box').innerText = "¡RESI se fue a llorar! ¡ANTON gana la batalla!";
                 document.getElementById('enemy-sprite').style.display = 'none';
                 isGameActive = false;
-                pokemonMusic.pause(); 
-                playTone(440, 'square', 0.5, 0.1); // Sonido retro de victoria
-            }, 6800);
+                pokemonMusic.pause(); // Detiene la música de pelea
+
+                victoryMusic.play();  // 👈 ¡NUEVA LÍNEA! Arranca la música de victoria
+            }, 6500); 
             return;
         }
 
 
-        setTimeout(enemyTurn, 6800);
+
+        setTimeout(enemyTurn, 5000);
     }
 
     function enemyTurn() {
@@ -410,14 +419,16 @@ function startRetroMusic() {
                 document.getElementById('dialogue-box').innerText = "¡ANTON se quedó dormido! RESI gana.";
                 document.getElementById('player-sprite').style.display = 'none';
                 isGameActive = false;
-                pokemonMusic.pause();
-            }, 6500);
+                pokemonMusic.pause(); // Detiene la música de pelea
+
+                defeatMusic.play();   // 👈 ¡NUEVA LÍNEA! Arranca la música de derrota
+            }, 5000); 
             return;
         }
         setTimeout(() => {
             document.getElementById('dialogue-box').innerText = "¿Qué hará ANTON?";
             setButtonsDisabled(false);
-        }, 6500);
+        }, 5000);
     }
 
     updateUI();
