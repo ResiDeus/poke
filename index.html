@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon 8-Bit Battle</title>
-    <!-- Fuente estilo pixel art de Google Fonts -->
+    <title>Pokémon 8-Bit Battle: Anton vs Resi</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
-            image-rendering: pixelated; /* Evita que el navegador suavice los píxeles */
+            image-rendering: pixelated;
         }
 
         body {
@@ -17,13 +16,21 @@
             color: #000;
             font-family: 'Press Start 2P', monospace;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
         }
 
-        /* Contenedor principal estilo pantalla Game Boy */
+        #music-notice {
+            color: #fff;
+            font-size: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
         #game-container {
             width: 480px;
             background-color: #f8f8f8;
@@ -34,11 +41,10 @@
             overflow: hidden;
         }
 
-        /* Pantalla de combate */
         #battle-screen {
             height: 280px;
             position: relative;
-            background-color: #e0f8d0; /* Tono verdoso de Game Boy */
+            background-color: #e0f8d0;
             padding: 16px;
             display: flex;
             flex-direction: column;
@@ -46,7 +52,6 @@
             border-bottom: 6px solid #000;
         }
 
-        /* Cajas de estado (Nombre y Barra de vida) */
         .status-box {
             background: #f8f8f8;
             border: 4px solid #000;
@@ -79,7 +84,6 @@
             margin-right: 4px;
         }
 
-        /* Barra de vida exterior */
         .hp-bar-border {
             border: 2px solid #000;
             width: 100%;
@@ -88,11 +92,10 @@
             padding: 1px;
         }
 
-        /* Barra de vida interior (progreso) */
         .hp-bar-fill {
             height: 100%;
             width: 100%;
-            background-color: #4fe04f; /* Verde */
+            background-color: #4fe04f;
             transition: width 0.3s ease;
         }
 
@@ -102,7 +105,6 @@
             margin-top: 4px;
         }
 
-        /* --- CONTENEDORES DE LOS SPRITES (IMÁGENES) --- */
         .sprite {
             position: absolute;
             width: 110px;
@@ -110,19 +112,16 @@
             object-fit: contain;
         }
 
-        /* Gato enemigo arriba a la derecha */
         #enemy-sprite {
             top: 12px;
             right: 32px;
         }
 
-        /* Perro jugador abajo a la izquierda (visto desde la espalda/atrás) */
         #player-sprite {
             bottom: 12px;
             left: 32px;
         }
 
-        /* Caja de texto y menú de ataques */
         #menu-container {
             height: 120px;
             background-color: #f8f8f8;
@@ -147,10 +146,9 @@
             padding: 8px;
         }
 
-        /* Botones de ataque estilo 8-bit */
         .btn-attack {
             font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
+            font-size: 8px;
             background-color: #f8f8f8;
             border: 3px solid #000;
             cursor: pointer;
@@ -167,16 +165,28 @@
             color: #777;
             cursor: not-allowed;
         }
+
+        .damaged {
+            animation: blink 0.15s linear infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
+<div id="music-notice">
+    🎵 Presiona cualquier ataque para iniciar la batalla e iniciar la música de 8 bits.
+</div>
+
 <div id="game-container">
-    <!-- PANTALLA DE COMBATE -->
     <div id="battle-screen">
-        <!-- Status Enemigo (Gato) -->
         <div class="status-box enemy-status">
-            <div>GATO</div>
+            <div>RESI</div>
             <div class="hp-container">
                 <span class="hp-label">HP</span>
                 <div class="hp-bar-border">
@@ -186,15 +196,11 @@
             <div id="enemy-hp-text" class="hp-text">100/100</div>
         </div>
 
-        <!-- Sprite del Gato (Enemigo frente a ti) -->
-        <img id="enemy-sprite" class="sprite" src="https://githubusercontent.com" alt="Gato Enemigo">
+        <img id="enemy-sprite" class="sprite" src="https://dicebear.com" alt="Resi">
+        <img id="player-sprite" class="sprite" src="https://dicebear.com" alt="Anton">
 
-        <!-- Sprite del Perro (Jugador de espaldas / perspectiva clásica) -->
-        <img id="player-sprite" class="sprite" src="https://githubusercontent.com" alt="Perro Jugador">
-
-        <!-- Status Jugador (Perro) -->
         <div class="status-box player-status">
-            <div>PERRO</div>
+            <div>ANTON</div>
             <div class="hp-container">
                 <span class="hp-label">HP</span>
                 <div class="hp-bar-border">
@@ -205,31 +211,77 @@
         </div>
     </div>
 
-    <!-- MENÚ INFERIOR (DIÁLOGO Y CONTROLES) -->
     <div id="menu-container">
-        <div id="dialogue-box">¡Un GATO salvaje apareció! ¿Qué hará PERRO?</div>
+        <div id="dialogue-box">¡RESI salvaje apareció! ¿Qué hará ANTON?</div>
         <div id="action-box">
-            <button class="btn-attack" onclick="playerTurn('ladrar')">Ladrar</button>
-            <button class="btn-attack" onclick="playerTurn('aruñar')">Aruñar</button>
-            <button class="btn-attack" onclick="playerTurn('brincar')">Brincar</button>
-            <button class="btn-attack" onclick="playerTurn('comer')">Comer</button>
+            <button class="btn-attack" onclick="playerTurn('dormir')">Dormir</button>
+            <button class="btn-attack" onclick="playerTurn('manco power')">Manco Power</button>
+            <button class="btn-attack" onclick="playerTurn('pellizcar')">Pellizcar</button>
+            <button class="btn-attack" onclick="playerTurn('burlarse')">Burlarse</button>
         </div>
     </div>
 </div>
 
 <script>
-    const player = { name: "PERRO", hp: 100, maxHp: 100 };
-    const enemy = { name: "GATO", hp: 100, maxHp: 100, moves: ["meow", "ternura", "bailar", "morder"] };
+    const player = { name: "ANTON", hp: 100, maxHp: 100 };
+    const enemy = { name: "RESI", hp: 100, maxHp: 100, moves: ["enojarse", "tocar pasto", "try hardear", "ternura"] };
     let isGameActive = true;
+    let audioCtx = null;
+    let musicInterval = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            startRetroMusic();
+        }
+    }
+
+    function playTone(freq, type, duration, volume = 0.1) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playSelectSound() {
+        playTone(600, 'square', 0.08, 0.05);
+        setTimeout(() => playTone(900, 'square', 0.08, 0.05), 40);
+    }
+
+    function playHitSound() {
+        playTone(150, 'sawtooth', 0.2, 0.2);
+        playTone(80, 'triangle', 0.3, 0.3);
+    }
+
+    function startRetroMusic() {
+        const melody =;
+        let step = 0;
+        musicInterval = setInterval(() => {
+            if (!isGameActive) {
+                clearInterval(musicInterval);
+                return;
+            }
+            playTone(melody[step % melody.length], 'square', 0.18, 0.02);
+            if (step % 2 === 0) {
+                playTone(melody[step % melody.length] / 2, 'triangle', 0.3, 0.04);
+            }
+            step++;
+        }, 200);
+    }
 
     function updateUI() {
-        // Jugador
         const playerHpPct = (player.hp / player.maxHp) * 100;
         document.getElementById('player-hp-bar').style.width = playerHpPct + '%';
         document.getElementById('player-hp-text').innerText = `${player.hp}/${player.maxHp}`;
         changeBarColor(document.getElementById('player-hp-bar'), playerHpPct);
 
-        // Enemigo
         const enemyHpPct = (enemy.hp / enemy.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = enemyHpPct + '%';
         document.getElementById('enemy-hp-text').innerText = `${enemy.hp}/${enemy.maxHp}`;
@@ -237,68 +289,92 @@
     }
 
     function changeBarColor(barElement, percentage) {
-        if (percentage <= 20) {
-            barElement.style.backgroundColor = '#e64a19'; // Rojo
-        } else if (percentage <= 50) {
-            barElement.style.backgroundColor = '#fbc02d'; // Amarillo
-        } else {
-            barElement.style.backgroundColor = '#4fe04f'; // Verde
-        }
+        if (percentage <= 20) barElement.style.backgroundColor = '#e64a19';
+        else if (percentage <= 50) barElement.style.backgroundColor = '#fbc02d';
+        else barElement.style.backgroundColor = '#4fe04f';
     }
 
     function setButtonsDisabled(state) {
-        const buttons = document.querySelectorAll('.btn-attack');
-        buttons.forEach(btn => btn.disabled = state);
+        document.querySelectorAll('.btn-attack').forEach(btn => btn.disabled = state);
+    }
+
+    function animateHit(targetId) {
+        const sprite = document.getElementById(targetId);
+        sprite.classList.add('damaged');
+        playHitSound();
+        setTimeout(() => sprite.classList.remove('damaged'), 600);
     }
 
     function playerTurn(move) {
         if (!isGameActive) return;
+        initAudio(); 
+        playSelectSound();
         setButtonsDisabled(true);
 
         const damage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
         enemy.hp = Math.max(0, enemy.hp - damage);
         
-        document.getElementById('dialogue-box').innerText = `¡PERRO usó ${move.toUpperCase()}! Hizo ${damage} de daño.`;
+        let customText = `¡ANTON usó ${move.toUpperCase()}! `;
+        if (move === 'dormir') customText += "Recuperó estilo pero igual recibió golpe.";
+        if (move === 'manco power') customText += "¡El poder de la manquera atacó!";
+        
+        document.getElementById('dialogue-box').innerText = `${customText} Hizo ${damage} de daño.`;
+        animateHit('enemy-sprite');
         updateUI();
 
+        // Si la vida de Resi llega a 0, termina el combate
         if (enemy.hp <= 0) {
             setTimeout(() => {
-                document.getElementById('dialogue-box').innerText = "¡El GATO enemigo se debilitó! ¡Ganaste!";
-                // Ocultar sprite enemigo al debilitarse
+                document.getElementById('dialogue-box').innerText = "¡RESI se fue a llorar! ¡ANTON gana la batalla!";
                 document.getElementById('enemy-sprite').style.display = 'none';
                 isGameActive = false;
+                playTone(440, 'square', 0.5, 0.1);
             }, 1500);
             return;
         }
 
-        setTimeout(enemyTurn, 1500);
+        // Si Resi sigue vivo, pasa a su turno tras una breve pausa
+        setTimeout(enemyTurn, 1800);
     }
 
+    // --- TURNO DE LA IA (RESI) ---
     function enemyTurn() {
         if (!isGameActive) return;
 
+        // Selección aleatoria del movimiento de Resi
         const randomMove = enemy.moves[Math.floor(Math.random() * enemy.moves.length)];
         const damage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
         player.hp = Math.max(0, player.hp - damage);
 
-        document.getElementById('dialogue-box').innerText = `¡GATO usó ${randomMove.toUpperCase()}! Hizo ${damage} de daño.`;
+        // Textos humorísticos adaptados para los ataques de Resi
+        let customText = `¡RESI usó ${randomMove.toUpperCase()}! `;
+        if (randomMove === 'tocar pasto') customText += "¡Te obligó a salir de la PC!";
+        if (randomMove === 'try hardear') customText += "¡Se puso extremadamente tóxico!";
+        if (randomMove === 'enojarse') customText += "¡Empezó a gritar por Discord!";
+        if (randomMove === 'ternura') customText += "¡Te miró con ojos lindos y caíste!";
+
+        document.getElementById('dialogue-box').innerText = `${customText} Hizo ${damage} de daño.`;
+        animateHit('player-sprite');
         updateUI();
 
+        // Si la vida de Anton llega a 0, Resi gana
         if (player.hp <= 0) {
             setTimeout(() => {
-                document.getElementById('dialogue-box').innerText = "¡PERRO se debilitó! Has perdido la batalla.";
+                document.getElementById('dialogue-box').innerText = "¡ANTON se quedó dormido! RESI gana.";
                 document.getElementById('player-sprite').style.display = 'none';
                 isGameActive = false;
             }, 1500);
             return;
         }
 
+        // Si Anton sigue en pie, le devuelve el control de los botones al jugador
         setTimeout(() => {
-            document.getElementById('dialogue-box').innerText = "¿Qué hará PERRO?";
+            document.getElementById('dialogue-box').innerText = "¿Qué hará ANTON?";
             setButtonsDisabled(false);
         }, 1500);
     }
 
+    // Inicialización de la interfaz gráfica al cargar la página
     updateUI();
 </script>
 
