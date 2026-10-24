@@ -32,8 +32,10 @@
             max-width: 480px;
         }
 
+                /* Contenedor principal estilo pantalla Game Boy */
         #game-container {
-            width: 480px;
+            width: 100%;       /* 👈 Ocupa todo el ancho disponible en el móvil */
+            max-width: 480px;  /* 👈 Pero nunca se estira más de 480px en PC */
             background-color: #f8f8f8;
             border: 8px solid #000;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
@@ -41,6 +43,7 @@
             flex-direction: column;
             overflow: hidden;
         }
+
 
         #battle-screen {
             height: 280px;
@@ -373,7 +376,33 @@ function startRetroMusic() {
     }
 
     updateUI();
+            /* --- AJUSTES ESPECIALES PARA PANTALLAS MÓVILES --- */
+        @media (max-width: 480px) {
+            #battle-screen {
+                height: 240px; /* Reducimos un poco la altura en el celular */
+            }
+            .status-box {
+                width: 160px;  /* Cajas de vida un poco más compactas */
+                font-size: 8px;
+            }
+            .sprite {
+                width: 120px;  /* En celular los alejamos un poco para que no tapen el texto */
+                height: 120px;
+            }
+            #player-sprite {
+                bottom: 0px;
+            }
+            #dialogue-box {
+                font-size: 8px; /* Texto de ataque más pequeño para que sea legible */
+            }
+            .btn-attack {
+                font-size: 7px; /* Letra de los botones adaptada al pulgar */
+            }
+        }
+
 </script>
+
+    
 
 </body>
 </html>
