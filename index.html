@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon 8-Bit Battle</title>
+    <!-- Fuente estilo pixel art de Google Fonts -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            image-rendering: pixelated; /* Fuerza al navegador a no suavizar los bordes */
+        }
+
+        body {
+            background-color: #222;
+            color: #000;
+            font-family: 'Press Start 2P', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Contenedor principal estilo pantalla Game Boy */
+        #game-container {
+            width: 480px;
+            background-color: #f8f8f8;
+            border: 8px solid #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Pantalla de combate */
+        #battle-screen {
+            height: 280px;
+            position: relative;
+            background-color: #e0f8d0; /* Tono verdoso nostálgico */
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-bottom: 6px solid #000;
+        }
+
+        /* Cajas de estado (Nombre y Barra de vida) */
+        .status-box {
+            background: #f8f8f8;
+            border: 4px solid #000;
+            padding: 8px;
+            width: 220px;
+            font-size: 10px;
+        }
+
+        .enemy-status {
+            align-self: flex-start;
+        }
+
+        .player-status {
+            align-self: flex-end;
+        }
+
+        .hp-container {
+            display: flex;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .hp-label {
+            font-size: 8px;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        /* Barra de vida exterior */
+        .hp-bar-border {
+            border: 2px solid #000;
+            width: 100%;
+            height: 12px;
+            background-color: #ccc;
+            padding: 1px;
+        }
+
+        /* Barra de vida interior (progreso) */
+        .hp-bar-fill {
+            height: 100%;
+            width: 100%;
+            background-color: #4fe04f; /* Verde */
+            transition: width 0.3s ease;
+        }
+
+        .hp-text {
+            text-align: right;
+            font-size: 8px;
+            margin-top: 4px;
+        }
+
+        /* Caja de texto y menú de ataques */
+        #menu-container {
+            height: 120px;
+            background-color: #f8f8f8;
+            display: flex;
+        }
+
+        #dialogue-box {
+            width: 50%;
+            padding: 12px;
+            font-size: 11px;
+            line-height: 1.5;
+            border-right: 4px solid #000;
+            display: flex;
+            align-items: center;
+        }
+
+        #action-box {
+            width: 50%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 8px;
+        }
+
+        /* Botones de ataque estilo 8-bit */
+        .btn-attack {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            background-color: #f8f8f8;
+            border: 3px solid #000;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-attack:hover {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .btn-attack:disabled {
+            background-color: #ccc;
+            color: #777;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- PANTALLA DE COMBATE -->
+    <div id="battle-screen">
+        <!-- Status Enemigo (Gato) -->
+        <div class="status-box enemy-status">
+            <div>GATO</div>
+            <div class="hp-container">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar-border">
+                    <div id="enemy-hp-bar" class="hp-bar-fill"></div>
+                </div>
+            </div>
+            <div id="enemy-hp-text" class="hp-text">100/100</div>
+        </div>
+
+        <!-- Status Jugador (Perro) -->
+        <div class="status-box player-status">
+            <div>PERRO</div>
+            <div class="hp-container">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar-border">
+                    <div id="player-hp-bar" class="hp-bar-fill"></div>
+                </div>
+            </div>
+            <div id="player-hp-text" class="hp-text">100/100</div>
+        </div>
+    </div>
+
+    <!-- MENÚ INFERIOR (DIÁLOGO Y CONTROLES) -->
+    <div id="menu-container">
+        <div id="dialogue-box">¡Un GATO salvaje apareció! ¿Qué hará PERRO?</div>
+        <div id="action-box">
+            <button class="btn-attack" onclick="playerTurn('ladrar')">Ladrar</button>
+            <button class="btn-attack" onclick="playerTurn('aruñar')">Aruñar</button>
+            <button class="btn-attack" onclick="playerTurn('brincar')">Brincar</button>
+            <button class="btn-attack" onclick="playerTurn('comer')">Comer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuración de personajes
+    const player = { name: "PERRO", hp: 100, maxHp: 100 };
+    const enemy = { name: "GATO", hp: 100, maxHp: 100, moves: ["meow", "ternura", "領bailar", "morder"] };
+    let isGameActive = true;
+
+    // Actualiza visualmente las barras y textos en la interfaz
+    function updateUI() {
+        // Jugador
+        const playerHpPct = (player.hp / player.maxHp) * 100;
+        document.getElementById('player-hp-bar').style.width = playerHpPct + '%';
+        document.getElementById('player-hp-text').innerText = `${player.hp}/${player.maxHp}`;
+        changeBarColor(document.getElementById('player-hp-bar'), playerHpPct);
+
+        // Enemigo
+        const enemyHpPct = (enemy.hp / enemy.maxHp) * 100;
+        document.getElementById('enemy-hp-bar').style.width = enemyHpPct + '%';
+        document.getElementById('enemy-hp-text').innerText = `${enemy.hp}/${enemy.maxHp}`;
+        changeBarColor(document.getElementById('enemy-hp-bar'), enemyHpPct);
+    }
+
+    // Cambia el color de la barra (Verde, Amarillo, Rojo) como en Pokémon
+    function changeBarColor(barElement, percentage) {
+        if (percentage <= 20) {
+            barElement.style.backgroundColor = '#e64a19'; // Rojo
+        } else if (percentage <= 50) {
+            barElement.style.backgroundColor = '#fbc02d'; // Amarillo
+        } else {
+            barElement.style.backgroundColor = '#4fe04f'; // Verde
+        }
+    }
+
+    function setButtonsDisabled(state) {
+        const buttons = document.querySelectorAll('.btn-attack');
+        buttons.forEach(btn => btn.disabled = state);
+    }
+
+    // Turno del Jugador
+    function playerTurn(move) {
+        if (!isGameActive) return;
+        setButtonsDisabled(true);
+
+        const damage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
+        enemy.hp = Math.max(0, enemy.hp - damage);
+        
+        document.getElementById('dialogue-box').innerText = `¡PERRO usó ${move.toUpperCase()}! Hizo ${damage} de daño.`;
+        updateUI();
+
+        if (enemy.hp <= 0) {
+            setTimeout(() => {
+                document.getElementById('dialogue-box').innerText = "¡El GATO enemigo se debilitó! ¡Ganaste!";
+                isGameActive = false;
+            }, 1500);
+            return;
+        }
+
+        // Dar paso al turno de la IA tras una pequeña pausa
+        setTimeout(enemyTurn, 1500);
+    }
+
+    // Turno de la IA (Enemigo)
+    function enemyTurn() {
+        if (!isGameActive) return;
+
+        const randomMove = enemy.moves[Math.floor(Math.random() * enemy.moves.length)];
+        const damage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
+        player.hp = Math.max(0, player.hp - damage);
+
+        document.getElementById('dialogue-box').innerText = `¡GATO usó ${randomMove.toUpperCase()}! Hizo ${damage} de daño.`;
+        updateUI();
+
+        if (player.hp <= 0) {
+            setTimeout(() => {
+                document.getElementById('dialogue-box').innerText = "¡PERRO se debilitó! Has perdido la batalla.";
+                isGameActive = false;
+            }, 1500);
+            return;
+        }
+
+        // Habilitar botones de nuevo para el jugador
+        setTimeout(() => {
+            document.getElementById('dialogue-box').innerText = "¿Qué hará PERRO?";
+            setButtonsDisabled(false);
+        }, 1500);
+    }
+
+    // Iniciar UI
+    updateUI();
+</script>
+
+</body>
+</html>
