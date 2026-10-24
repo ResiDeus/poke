@@ -366,7 +366,7 @@ function startRetroMusic() {
         enemy.hp = Math.max(0, enemy.hp - damage);
         
         let customText = '¡ANTON usó ' + move.toUpperCase() + '! ';
-        if (move === 'dormir') customText += "Recuperó estilo pero igual recibió golpe.";
+        if (move === 'dormir') customText += "Y perdieron la partida.";
         if (move === 'manco power') customText += "¡El poder de la manquera atacó!";
         
         document.getElementById('dialogue-box').innerText = customText + ' Hizo ' + damage + ' de daño.';
