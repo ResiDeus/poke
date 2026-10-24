@@ -29,6 +29,7 @@
             margin-bottom: 12px;
             text-align: center;
             line-height: 1.5;
+            max-width: 480px;
         }
 
         #game-container {
@@ -238,16 +239,20 @@
 
     function playTone(freq, type, duration, volume = 0.1) {
         if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {
+            console.error(e);
+        }
     }
 
     function playSelectSound() {
@@ -261,7 +266,7 @@
     }
 
     function startRetroMusic() {
-        const melody =;
+        const melody = [330, 392, 440, 523, 587, 659, 784];
         let step = 0;
         musicInterval = setInterval(() => {
             if (!isGameActive) {
@@ -279,12 +284,12 @@
     function updateUI() {
         const playerHpPct = (player.hp / player.maxHp) * 100;
         document.getElementById('player-hp-bar').style.width = playerHpPct + '%';
-        document.getElementById('player-hp-text').innerText = `${player.hp}/${player.maxHp}`;
+        document.getElementById('player-hp-text').innerText = player.hp + '/' + player.maxHp;
         changeBarColor(document.getElementById('player-hp-bar'), playerHpPct);
 
         const enemyHpPct = (enemy.hp / enemy.maxHp) * 100;
         document.getElementById('enemy-hp-bar').style.width = enemyHpPct + '%';
-        document.getElementById('enemy-hp-text').innerText = `${enemy.hp}/${enemy.maxHp}`;
+        document.getElementById('enemy-hp-text').innerText = enemy.hp + '/' + enemy.maxHp;
         changeBarColor(document.getElementById('enemy-hp-bar'), enemyHpPct);
     }
 
@@ -314,15 +319,14 @@
         const damage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
         enemy.hp = Math.max(0, enemy.hp - damage);
         
-        let customText = `¡ANTON usó ${move.toUpperCase()}! `;
+        let customText = '¡ANTON usó ' + move.toUpperCase() + '! ';
         if (move === 'dormir') customText += "Recuperó estilo pero igual recibió golpe.";
         if (move === 'manco power') customText += "¡El poder de la manquera atacó!";
         
-        document.getElementById('dialogue-box').innerText = `${customText} Hizo ${damage} de daño.`;
+        document.getElementById('dialogue-box').innerText = customText + ' Hizo ' + damage + ' de daño.';
         animateHit('enemy-sprite');
         updateUI();
 
-        // Si la vida de Resi llega a 0, termina el combate
         if (enemy.hp <= 0) {
             setTimeout(() => {
                 document.getElementById('dialogue-box').innerText = "¡RESI se fue a llorar! ¡ANTON gana la batalla!";
@@ -333,31 +337,26 @@
             return;
         }
 
-        // Si Resi sigue vivo, pasa a su turno tras una breve pausa
         setTimeout(enemyTurn, 1800);
     }
 
-    // --- TURNO DE LA IA (RESI) ---
     function enemyTurn() {
         if (!isGameActive) return;
 
-        // Selección aleatoria del movimiento de Resi
         const randomMove = enemy.moves[Math.floor(Math.random() * enemy.moves.length)];
         const damage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
         player.hp = Math.max(0, player.hp - damage);
 
-        // Textos humorísticos adaptados para los ataques de Resi
-        let customText = `¡RESI usó ${randomMove.toUpperCase()}! `;
+        let customText = '¡RESI usó ' + randomMove.toUpperCase() + '! ';
         if (randomMove === 'tocar pasto') customText += "¡Te obligó a salir de la PC!";
         if (randomMove === 'try hardear') customText += "¡Se puso extremadamente tóxico!";
         if (randomMove === 'enojarse') customText += "¡Empezó a gritar por Discord!";
         if (randomMove === 'ternura') customText += "¡Te miró con ojos lindos y caíste!";
 
-        document.getElementById('dialogue-box').innerText = `${customText} Hizo ${damage} de daño.`;
+        document.getElementById('dialogue-box').innerText = customText + ' Hizo ' + damage + ' de daño.';
         animateHit('player-sprite');
         updateUI();
 
-        // Si la vida de Anton llega a 0, Resi gana
         if (player.hp <= 0) {
             setTimeout(() => {
                 document.getElementById('dialogue-box').innerText = "¡ANTON se quedó dormido! RESI gana.";
@@ -367,14 +366,12 @@
             return;
         }
 
-        // Si Anton sigue en pie, le devuelve el control de los botones al jugador
         setTimeout(() => {
             document.getElementById('dialogue-box').innerText = "¿Qué hará ANTON?";
             setButtonsDisabled(false);
         }, 1500);
     }
 
-    // Inicialización de la interfaz gráfica al cargar la página
     updateUI();
 </script>
 
