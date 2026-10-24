@@ -9,7 +9,7 @@
     <style>
         * {
             box-sizing: border-box;
-            image-rendering: pixelated; /* Fuerza al navegador a no suavizar los bordes */
+            image-rendering: pixelated; /* Evita que el navegador suavice los píxeles */
         }
 
         body {
@@ -38,7 +38,7 @@
         #battle-screen {
             height: 280px;
             position: relative;
-            background-color: #e0f8d0; /* Tono verdoso nostálgico */
+            background-color: #e0f8d0; /* Tono verdoso de Game Boy */
             padding: 16px;
             display: flex;
             flex-direction: column;
@@ -51,16 +51,20 @@
             background: #f8f8f8;
             border: 4px solid #000;
             padding: 8px;
-            width: 220px;
+            width: 200px;
             font-size: 10px;
+            position: absolute;
+            z-index: 10;
         }
 
         .enemy-status {
-            align-self: flex-start;
+            top: 16px;
+            left: 16px;
         }
 
         .player-status {
-            align-self: flex-end;
+            bottom: 24px;
+            right: 16px;
         }
 
         .hp-container {
@@ -98,6 +102,26 @@
             margin-top: 4px;
         }
 
+        /* --- CONTENEDORES DE LOS SPRITES (IMÁGENES) --- */
+        .sprite {
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+        }
+
+        /* Gato enemigo arriba a la derecha */
+        #enemy-sprite {
+            top: 12px;
+            right: 32px;
+        }
+
+        /* Perro jugador abajo a la izquierda (visto desde la espalda/atrás) */
+        #player-sprite {
+            bottom: 12px;
+            left: 32px;
+        }
+
         /* Caja de texto y menú de ataques */
         #menu-container {
             height: 120px;
@@ -108,8 +132,8 @@
         #dialogue-box {
             width: 50%;
             padding: 12px;
-            font-size: 11px;
-            line-height: 1.5;
+            font-size: 10px;
+            line-height: 1.6;
             border-right: 4px solid #000;
             display: flex;
             align-items: center;
@@ -162,6 +186,12 @@
             <div id="enemy-hp-text" class="hp-text">100/100</div>
         </div>
 
+        <!-- Sprite del Gato (Enemigo frente a ti) -->
+        <img id="enemy-sprite" class="sprite" src="https://githubusercontent.com" alt="Gato Enemigo">
+
+        <!-- Sprite del Perro (Jugador de espaldas / perspectiva clásica) -->
+        <img id="player-sprite" class="sprite" src="https://githubusercontent.com" alt="Perro Jugador">
+
         <!-- Status Jugador (Perro) -->
         <div class="status-box player-status">
             <div>PERRO</div>
@@ -188,12 +218,10 @@
 </div>
 
 <script>
-    // Configuración de personajes
     const player = { name: "PERRO", hp: 100, maxHp: 100 };
-    const enemy = { name: "GATO", hp: 100, maxHp: 100, moves: ["meow", "ternura", "領bailar", "morder"] };
+    const enemy = { name: "GATO", hp: 100, maxHp: 100, moves: ["meow", "ternura", "bailar", "morder"] };
     let isGameActive = true;
 
-    // Actualiza visualmente las barras y textos en la interfaz
     function updateUI() {
         // Jugador
         const playerHpPct = (player.hp / player.maxHp) * 100;
@@ -208,7 +236,6 @@
         changeBarColor(document.getElementById('enemy-hp-bar'), enemyHpPct);
     }
 
-    // Cambia el color de la barra (Verde, Amarillo, Rojo) como en Pokémon
     function changeBarColor(barElement, percentage) {
         if (percentage <= 20) {
             barElement.style.backgroundColor = '#e64a19'; // Rojo
@@ -224,7 +251,6 @@
         buttons.forEach(btn => btn.disabled = state);
     }
 
-    // Turno del Jugador
     function playerTurn(move) {
         if (!isGameActive) return;
         setButtonsDisabled(true);
@@ -238,16 +264,16 @@
         if (enemy.hp <= 0) {
             setTimeout(() => {
                 document.getElementById('dialogue-box').innerText = "¡El GATO enemigo se debilitó! ¡Ganaste!";
+                // Ocultar sprite enemigo al debilitarse
+                document.getElementById('enemy-sprite').style.display = 'none';
                 isGameActive = false;
             }, 1500);
             return;
         }
 
-        // Dar paso al turno de la IA tras una pequeña pausa
         setTimeout(enemyTurn, 1500);
     }
 
-    // Turno de la IA (Enemigo)
     function enemyTurn() {
         if (!isGameActive) return;
 
@@ -261,19 +287,18 @@
         if (player.hp <= 0) {
             setTimeout(() => {
                 document.getElementById('dialogue-box').innerText = "¡PERRO se debilitó! Has perdido la batalla.";
+                document.getElementById('player-sprite').style.display = 'none';
                 isGameActive = false;
             }, 1500);
             return;
         }
 
-        // Habilitar botones de nuevo para el jugador
         setTimeout(() => {
             document.getElementById('dialogue-box').innerText = "¿Qué hará PERRO?";
             setButtonsDisabled(false);
         }, 1500);
     }
 
-    // Iniciar UI
     updateUI();
 </script>
 
