@@ -106,21 +106,22 @@
             margin-top: 4px;
         }
 
-        .sprite {
+                .sprite {
             position: absolute;
-            width: 110px;
-            height: 110px;
+            width: 160px;  /* 👈 Antes estaba en 110px, lo subimos para acercarlos */
+            height: 160px; /* 👈 Antes estaba en 110px, lo subimos para acercarlos */
             object-fit: contain;
         }
 
+
         #enemy-sprite {
-            top: 12px;
-            right: 32px;
+            top: 20px;
+            right: 15px; /* 👈 Lo movemos un poco a la derecha */
         }
 
         #player-sprite {
-            bottom: 12px;
-            left: 32px;
+            bottom: -5px; /* 👈 Lo bajamos un poco para que simule salir de la pantalla */
+            left: 15px;   /* 👈 Lo centramos mejor a la izquierda */
         }
 
         #menu-container {
